@@ -1,0 +1,11 @@
+future:
+- add BDD with SpecFlow
+
+in progress:
+- make a basic nUnit framework
+    * add extent reports to the BaseTest
+    * integrate extent reports with webdriver(probably should use extensions)
+
+optional:
+- add docker support
+- make an xUnit version

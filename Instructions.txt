@@ -1,0 +1,11 @@
+rename Main folder to your project name
+Main/Site should store methods for tests in Main/Test
+
+these files should have the same name:
+    * test file
+    * corresponding file with methods
+    * corresponding test data file
+    
+Utilities/config.json info:
+    * implicit-wait uses seconds
+    * add any information you need to in system-info (like "0S": "CentOS 8.5-2111"), don't remove show-browser-in-system-info it's used directly in the code

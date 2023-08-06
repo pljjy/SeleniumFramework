@@ -1,0 +1,8 @@
+{
+  "browser": "Chrome", 
+  "headless": true,
+  "implicit-wait": 5,
+  "system-info": {
+    "show-browser-in-system-info":  true
+  }
+}
