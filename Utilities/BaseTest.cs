@@ -5,8 +5,8 @@ using AventStack.ExtentReports.Reporter.Configuration;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using SeleniumFramework.Source.CustomDriver;
 using SeleniumFramework.Source.DriverAddons;
-using SeleniumFramework.Source.Extensions;
 
 namespace SeleniumFramework.Utilities;
 
@@ -38,7 +38,8 @@ public class BaseTest
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-        string reportsPath = projectDir + @"/Reports/";
+        configs = JsonFileToDictionary(pathToJsonFile);
+        string reportsPath = projectDir + @"/   Reports/";
         if (!Directory.Exists(reportsPath))
         {
             Directory.CreateDirectory(reportsPath);
@@ -46,7 +47,6 @@ public class BaseTest
         }
         
         nameClass = GetType().ToString().Substring("Epam.TestCases.".Length);
-
         var htmlReporter = new ExtentHtmlReporter(reportsPath)
         {
             Config =
@@ -59,30 +59,14 @@ public class BaseTest
         extent = new ExtentReports();
         extent.AttachReporter(htmlReporter); 
         //parse it to html
-
-        //information that will be shown in the html report
-        configs = JsonFileToDictionary(pathToJsonFile);
-        var systemInfo = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(configs["system-info"].ToString());
-
-        if (systemInfo["show-browser-in-system-info"])
-        {
-            systemInfo.Remove("show-browser-in-system-info");
-            extent.AddSystemInfo("Browser", configs["browser"]);
-        }
-
-        foreach (var info in systemInfo)
-        {
-            extent.AddSystemInfo(info.Key, info.Value);
-        }
     }
 
     [SetUp]
     public void StartBrowser()
     {
         report = new ReportClass(TestContext.CurrentContext.Test.Name, extent);
-        ETypeDriver webEType = ETypeDriver.Chrome;
-        string browserName = Regex.Replace(configs["browser"], @"[_\s-]", "").ToLower();
-
+        ETypeDriver webEType;
+        string browserName = configs["browser"].ToLower();
         switch (browserName)
         {
             case "edge":
@@ -91,10 +75,13 @@ public class BaseTest
             case "firefox":
                 webEType = ETypeDriver.Firefox; 
                 break;
+            default:
+                webEType = ETypeDriver.Chrome;
+                break;
         }
 
         driver =  DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
-        // json returns Int64 so it should be changed to Int32 manually
+        // json returns Int64 so it should be manually changed to Int32
     }
 
     #endregion
@@ -123,18 +110,20 @@ public class BaseTest
         Thread.Sleep(500);
         switch (testStatus)
         {
-            case TestStatus.Passed:
-                report.Pass("Test passed successfully");
-                break;
-            case TestStatus.Skipped:
-                report.Debug("Test skipped");
-                break;
-            case TestStatus.Warning:
-                report.Warning("Test ended with a warning", driver.CaptureScreenshot());
-                break;
-            case TestStatus.Failed:
-                report.Error("Test ended with an error", driver.CaptureScreenshot());
-                break;
+            // case TestStatus.Passed:
+            //     report.Pass("Test passed successfully");
+            //     break;
+            // case TestStatus.Skipped:
+            //     report.Debug("Test skipped");
+            //     break;
+            // case TestStatus.Warning:
+            //     report.Warning("Test ended with a warning", driver.CaptureScreenshot());
+            //     break;
+            // case TestStatus.Failed:
+            //     report.Error("Test ended with an error", driver.CaptureScreenshot());
+            //     break;
+            
+            // TODO: UNCOMMENT THESE WHEN CUSTOMDRIVER DRIVER METHODS ARE DONE
         }
 
         driver.Quit();
