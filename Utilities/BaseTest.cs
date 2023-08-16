@@ -1,14 +1,10 @@
-using System.Text.RegularExpressions;
 using AventStack.ExtentReports;
 using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports.Reporter.Configuration;
-using Newtonsoft.Json;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
-using SeleniumFramework.Source.CustomDriver;
 using SeleniumFramework.Source.DriverAddons;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-namespace SeleniumFramework.Utilities;
 
 /*
  *===========================================================
@@ -22,6 +18,9 @@ namespace SeleniumFramework.Utilities;
  * which extent reports use
  *===========================================================
  */
+
+[assembly: Parallelizable(ParallelScope.Fixtures)]
+namespace SeleniumFramework.Utilities;
 
 public class BaseTest
 {

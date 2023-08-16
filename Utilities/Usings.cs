@@ -3,3 +3,4 @@ global using NUnit;
 
 global using static SeleniumFramework.Utilities.SupMethods;
 global using static OpenQA.Selenium.Support.Extensions.WebDriverExtensions;
+global using static SeleniumFramework.Source.TestParameters;

@@ -13,7 +13,7 @@ public class ReportClass
     {
         logger = extent.CreateTest(name);
     }
-
+    
     public void Pass(string text, MediaEntityModelProvider? provider = null)
     {
         text = "<font color = 'green'>" + text + "<font/>";
@@ -26,11 +26,10 @@ public class ReportClass
         logger.Log(Status.Debug, text, provider);
     }
 
-    // blue debug, may be deleted though
     public void Info(string text, MediaEntityModelProvider? provider = null)
     {
         text = "<font color = 'blue'>" + text + "<font/>";
-        logger.Log(Status.Debug, text, provider);
+        logger.Log(Status.Info, text, provider);
     }
 
     public void Warning(string text, MediaEntityModelProvider? provider = null)
@@ -48,6 +47,31 @@ public class ReportClass
     public void Fatal(string text, MediaEntityModelProvider? provider = null)
     {
         text = "<b><i><font color = 'f8b0000'>" + text + "<font/><i/><b/>";
-        logger.Log(Status.Error, text, provider);
+        logger.Log(Status.Fatal, text, provider);
+    }
+
+    public void BySeverity(string text, Status severity, MediaEntityModelProvider? provider = null)
+    {
+        switch (severity)
+        {
+            case Status.Pass: 
+                Pass(text, provider);
+                break;
+            case Status.Debug: 
+                Debug(text, provider);
+                break;
+            case Status.Warning: 
+                Warning(text, provider);
+                break;
+            case Status.Error: 
+                Error(text, provider);
+                break;
+            case Status.Fatal: 
+                Fatal(text, provider);
+                break;
+            default: 
+                Info(text, provider);
+                break;
+        }
     }
 }

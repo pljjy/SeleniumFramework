@@ -12,20 +12,20 @@ namespace SeleniumFramework.Source.CustomDriver;
 public class CustomDriver
 {
     public readonly IWebDriver driver;
-    public readonly ReportClass report;
+    public readonly ReportClass log;
     public readonly Lazy<IJavaScriptExecutor> js;
     // should save some time if there are a lot of tests 
-    
-    CustomDriver(IWebDriver driver, ReportClass report)
+
+    CustomDriver(IWebDriver driver, ReportClass log)
     {
         this.driver = driver;
-        this.report = report;
-        js = new Lazy<IJavaScriptExecutor>((IJavaScriptExecutor) driver);
+        this.log = log;
+        js = new Lazy<IJavaScriptExecutor>((IJavaScriptExecutor)driver);
         // #define would go crazy with js.Value 🗣🗣🔥🥶 
     }
 
     #region Fast access methods
-    
+
     /// <summary>
     /// Scrolls to the given element
     /// </summary>
@@ -83,27 +83,12 @@ public class CustomDriver
         var webElement = driver.FindElement(element);
         js.Value.ExecuteScript($"arguments[0].innerHTML = '{newText}';", webElement);
     }
-
-
-    /// <summary>
-    /// Drags and drops element to another element 
-    /// </summary>
-    /// <param name="sourceElement"></param>
-    /// <param name="targetElement"></param>
-    public void DragAndDrop(By sourceElement, By targetElement)
-    {
-        var _sourceElement = driver.FindElement(sourceElement);
-        var _targetElement = driver.FindElement(targetElement);
-        new Actions(driver)
-            .DragAndDrop(_sourceElement, _targetElement)
-            .Perform();
-    }
-
+    
     /// <summary>
     /// Closes all the windows except the chosen(current by default) one
     /// </summary>
     /// <param name="homePage"></param>
-    public void OtherWindowsClose(string? homePage = null)
+    public void CloseOtherWindows(string? homePage = null)
     {
         homePage ??= driver.CurrentWindowHandle;
         var _windows = driver.WindowHandles;
@@ -126,7 +111,6 @@ public class CustomDriver
     {
         ITakesScreenshot ts = (ITakesScreenshot)driver;
         string screenshot = ts.GetScreenshot().AsBase64EncodedString;
-
         if (fileName == null)
         {
             var time = DateTime.Now;
@@ -135,12 +119,55 @@ public class CustomDriver
 
         return MediaEntityBuilder.CreateScreenCaptureFromBase64String(screenshot, fileName).Build();
     }
-
+    
+    private bool IsVisible(By locator)
+    {
+        try
+        {
+            return driver.FindElement(locator).Displayed;
+        }
+        catch (NoSuchElementException)
+        {
+            return false;
+        }
+    }
+    
+    // TODO: add driver methods, but modify it
+    
     #endregion
 
     #region Assertions
 
-
-
+    /// <summary>
+    /// Drags and drops element to another element 
+    /// </summary>
+    /// <param name="sourceElement"></param>
+    /// <param name="targetElement"></param>
+    public void DragAndDropAssertion(By sourceElement, By targetElement, Status severity = Status.Warning, bool screenShot = true)
+    {
+        var _sourceElement = driver.FindElement(sourceElement);
+        var _targetElement = driver.FindElement(targetElement);
+        string fromTo = sourceElement + " to " + targetElement;
+        try
+        {
+            new Actions(driver)
+                .DragAndDrop(_sourceElement, _targetElement)
+                .Perform();
+            log.Pass("Successfully Drag and Dropped " + fromTo);
+        }
+        catch
+        {
+            if(screenShot)
+                log.BySeverity($"Couldn't Drag and Drop " + fromTo, severity, CaptureScreenshot());
+            else
+                log.BySeverity($"Couldn't Drag and Drop " + fromTo, severity);
+        }
+    }
+    
+    //TODO: do these and add some more
+    // public void AssertElementIsVisible(By selector, bool expected, bool screenShot = true;)
+    
+    // public void DropDown()
+    
     #endregion
 }

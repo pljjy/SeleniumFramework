@@ -25,4 +25,9 @@ public class SupMethods
     {
         return Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent + "";
     }
+
+    public static string BySelectorToString(By selector)
+    {
+        return selector.ToString()!.Substring(selector.ToString()!.IndexOf(' ') + 1);
+    }
 }
