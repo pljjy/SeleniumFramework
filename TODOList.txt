@@ -3,11 +3,9 @@ future:
 
 in progress:
 - make a basic nUnit framework
-    * integrating extent reports to webdriver with CustomDriver class
     * should add sort assertions to the CustomDriver
     * implement basic driver methods to CustomDriver with sort assertions so they can be used directly instead of instance.driver.method
     * maybe use extensions for CustomDriver instead of regions?
-- add TestContext.Parameters (use --tp instead of --p)
 
 optional:
 - add docker support
