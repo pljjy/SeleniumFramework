@@ -13,7 +13,7 @@ public class ReportClass
     {
         logger = extent.CreateTest(name);
     }
-    
+
     public void Pass(string text, MediaEntityModelProvider? provider = null)
     {
         text = "<font color = 'green'>" + text + "<font/>";
@@ -54,22 +54,22 @@ public class ReportClass
     {
         switch (severity)
         {
-            case Status.Pass: 
+            case Status.Pass:
                 Pass(text, provider);
                 break;
-            case Status.Debug: 
+            case Status.Debug:
                 Debug(text, provider);
                 break;
-            case Status.Warning: 
+            case Status.Warning:
                 Warning(text, provider);
                 break;
-            case Status.Error: 
+            case Status.Error:
                 Error(text, provider);
                 break;
-            case Status.Fatal: 
+            case Status.Fatal:
                 Fatal(text, provider);
                 break;
-            default: 
+            default:
                 Info(text, provider);
                 break;
         }

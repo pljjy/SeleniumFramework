@@ -1,13 +1,11 @@
-using AventStack.ExtentReports;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
 
 namespace SeleniumFramework.Utilities;
 
 /// <summary>
 /// These are some methods that are frequently used throughout the code
 /// </summary>
-public class SupMethods
+public class MethodsUtil
 {
     public static readonly string pathToJsonFile = GetProjectDirectory() + @"/Utilities/config.json";
 
@@ -29,5 +27,27 @@ public class SupMethods
     public static string BySelectorToString(By selector)
     {
         return selector.ToString()!.Substring(selector.ToString()!.IndexOf(' ') + 1);
+    }
+
+    /// <summary>
+    /// Json used a lot for reports, if you need to change something about it, change it here
+    /// </summary>
+    /// <param name="json"></param>
+    /// <param name="keyColor"></param>
+    /// <param name="valueColor"></param>
+    /// <returns></returns>
+    public static string JsonReportText(Dictionary<string, object> json, string keyColor = "red",
+        string valueColor = "green")
+    {
+        string res = "<br/><pre lang='json'><code>";
+        for (int i = 0; i < json.Count; i++)
+        {
+            res += $"<font color='{keyColor}'>{json.ElementAt(i).Key}: </font>" +
+                   $"<font color='{valueColor}'>{json.ElementAt(i).Value}</font>";
+            if (i + 1 != json.Count)
+                res += "<br/>";
+        }
+
+        return res + "</code></pre>";
     }
 }

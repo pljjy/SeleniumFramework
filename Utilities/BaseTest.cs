@@ -2,7 +2,10 @@ using AventStack.ExtentReports;
 using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports.Reporter.Configuration;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using SeleniumFramework.Source.CustomDriver;
 using SeleniumFramework.Source.DriverAddons;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 
@@ -20,13 +23,14 @@ using SeleniumFramework.Source.DriverAddons;
  */
 
 [assembly: Parallelizable(ParallelScope.Fixtures)]
+
 namespace SeleniumFramework.Utilities;
 
 public class BaseTest
 {
-    private protected IWebDriver driver;
+    private protected CustomDriver driver;
     private ExtentReports extent;
-    private protected ReportClass report;
+    private protected ReportClass log;
     private protected string nameClass;
     private protected Dictionary<string, dynamic> configs;
 
@@ -44,8 +48,8 @@ public class BaseTest
             Directory.CreateDirectory(reportsPath);
             // html files are ignored by git so Report folder doesn't exist when cloned 
         }
-        
-        nameClass = GetType().ToString().Substring("Epam.TestCases.".Length);
+
+        nameClass = GetType().ToString();
         var htmlReporter = new ExtentHtmlReporter(reportsPath)
         {
             Config =
@@ -56,14 +60,14 @@ public class BaseTest
         };
 
         extent = new ExtentReports();
-        extent.AttachReporter(htmlReporter); 
+        extent.AttachReporter(htmlReporter);
         //parse it to html
     }
 
     [SetUp]
     public void StartBrowser()
     {
-        report = new ReportClass(TestContext.CurrentContext.Test.Name, extent);
+        log = new ReportClass(TestContext.CurrentContext.Test.Name, extent);
         ETypeDriver webEType;
         string browserName = configs["browser"].ToLower();
         switch (browserName)
@@ -72,15 +76,16 @@ public class BaseTest
                 webEType = ETypeDriver.Edge;
                 break;
             case "firefox":
-                webEType = ETypeDriver.Firefox; 
+                webEType = ETypeDriver.Firefox;
                 break;
             default:
                 webEType = ETypeDriver.Chrome;
                 break;
         }
 
-        driver =  DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
+        IWebDriver _driver = DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
         // json returns Int64 so it should be manually changed to Int32
+        driver = new CustomDriver(_driver, log);
     }
 
     #endregion
@@ -96,7 +101,7 @@ public class BaseTest
             File.Move(String.Format(projectDir + @"/Reports/index.html"),
                 String.Format(projectDir + $@"/Reports/{DateTime.Now.ToString("yyyyMMdd_hhmm")}-{nameClass}.html"));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Assert.Fail("Couldn't save reports\n\n" + e.Message + "\n" + e.StackTrace);
         }
@@ -109,20 +114,18 @@ public class BaseTest
         Thread.Sleep(500);
         switch (testStatus)
         {
-            // case TestStatus.Passed:
-            //     report.Pass("Test passed successfully");
-            //     break;
-            // case TestStatus.Skipped:
-            //     report.Debug("Test skipped");
-            //     break;
-            // case TestStatus.Warning:
-            //     report.Warning("Test ended with a warning", driver.CaptureScreenshot());
-            //     break;
-            // case TestStatus.Failed:
-            //     report.Error("Test ended with an error", driver.CaptureScreenshot());
-            //     break;
-            
-            // TODO: UNCOMMENT THESE WHEN CUSTOMDRIVER DRIVER METHODS ARE DONE
+            case TestStatus.Passed:
+                log.Pass("Test passed successfully");
+                break;
+            case TestStatus.Skipped:
+                log.Debug("Test skipped");
+                break;
+            case TestStatus.Warning:
+                log.Warning("Test ended with a warning", driver.CaptureScreenshot());
+                break;
+            case TestStatus.Failed:
+                log.Error("Test ended with an error", driver.CaptureScreenshot());
+                break;
         }
 
         driver.Quit();

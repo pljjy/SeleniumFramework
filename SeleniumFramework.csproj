@@ -12,8 +12,6 @@
       <Folder Include="Tests\Site\" />
       <Folder Include="Tests\WebDriver\TestData\" />
       <Folder Include="Tests\WebDriver\Test\" />
-      <Folder Include="YourProj\Site\" />
-      <Folder Include="YourProj\Test\" />
     </ItemGroup>
 
     <ItemGroup>
