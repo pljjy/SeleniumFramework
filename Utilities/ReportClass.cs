@@ -28,7 +28,7 @@ public class ReportClass
 
     public void Info(string text, MediaEntityModelProvider? provider = null)
     {
-        text = "<font color = 'blue'>" + text + "<font/>";
+        text = "<font color = '#026592'>" + text + "<font/>"; // #026592 - shape of blue
         logger.Log(Status.Info, text, provider);
     }
 
@@ -46,7 +46,7 @@ public class ReportClass
 
     public void Fatal(string text, MediaEntityModelProvider? provider = null)
     {
-        text = "<b><i><font color = 'f8b0000'>" + text + "<font/><i/><b/>";
+        text = "<b><i><font color = '#8b0000'>" + text + "<font/><i/><b/>"; // #8b0000 - dark red
         logger.Log(Status.Fatal, text, provider);
     }
 

@@ -1,10 +1,13 @@
 future:
 - add BDD with SpecFlow
+- add api assertions
+
+should be doing:
+- api assertions
+- dropdown assertions
 
 in progress:
-- make a basic nUnit framework
-    * should add MORE sort assertions to the CustomDriver
-    * implement MORE basic driver methods to CustomDriver with sort assertions so they can be used directly instead of instance.driver.method
+- nothing rn
 
 optional:
 - add docker support

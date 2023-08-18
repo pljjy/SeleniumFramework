@@ -186,6 +186,13 @@ public class CustomDriver
             }
     }
 
+    public void Submit(By locator, bool debug = false)
+    {
+        driver.FindElement(locator).Submit();
+        if(debug)
+            log.Debug("Submitted element " + locator);
+    }
+
     #endregion
 
     #region Assertions

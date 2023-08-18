@@ -5,7 +5,7 @@ if it's possible try to avoid making methods with WebElement, instead use By to 
 
 these files should have the same name:
     * test file
-    * corresponding file with methods
+    * corresponding file with methods or/and locators
     * corresponding test data file
     
 Utilities/config.json info:

@@ -37,13 +37,13 @@ public class MethodsUtil
     /// <param name="valueColor"></param>
     /// <returns></returns>
     public static string JsonReportText(Dictionary<string, object> json, string keyColor = "red",
-        string valueColor = "green")
+        string valueColor = "blue")
     {
         string res = "<br/><pre lang='json'><code>";
         for (int i = 0; i < json.Count; i++)
         {
             res += $"<font color='{keyColor}'>{json.ElementAt(i).Key}: </font>" +
-                   $"<font color='{valueColor}'>{json.ElementAt(i).Value}</font>";
+                   $"<font color='{valueColor}'>'{json.ElementAt(i).Value}'</font>";
             if (i + 1 != json.Count)
                 res += "<br/>";
         }
