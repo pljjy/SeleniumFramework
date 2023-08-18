@@ -15,7 +15,7 @@ public class CustomDriver
     public readonly IWebDriver driver;
     public readonly ReportClass log;
     public readonly Lazy<IJavaScriptExecutor> js;
-    // should save some time if there are a lot of tests 
+    // should save some time if there are a lot of tests
 
     public CustomDriver(IWebDriver driver, ReportClass log)
     {
@@ -46,30 +46,6 @@ public class CustomDriver
         return new WebDriverWait(driver, TimeSpan.FromSeconds(timeout));
     }
 
-    public void IsInteractable(By locator, int timeout, bool softAssert = true)
-    {
-        try
-        {
-            WebdriverWait(timeout).Until(_ =>
-                driver.FindElement(locator).Enabled && driver.FindElement(locator).Displayed);
-            log.Debug($"Element <code>{locator}</code> is interactable");
-        }
-        catch (WebDriverTimeoutException)
-        {
-            if (!softAssert)
-            {
-                log.Error($"Element is not interactable after <b>{timeout}</b> seconds)" +
-                          JsonReportText(new Dictionary<string, object>
-                              { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
-                Assert.Fail($"Element is not interactable after <b>{timeout}</b> seconds)");
-            }
-
-            log.Warning($"Element is not interactable after <b>{timeout}</b> seconds)" +
-                        JsonReportText(new Dictionary<string, object>
-                            { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
-        }
-    }
-
     /// <summary>
     /// Scrolls to the given element
     /// </summary>
@@ -77,16 +53,6 @@ public class CustomDriver
     public void ScrollElementIntoView(By locator)
     {
         var _element = driver.FindElement(locator);
-        string scrollElementIntoMiddle =
-            "var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);"
-            + "var elementTop = arguments[0].getBoundingClientRect().top;"
-            + "window.scrollBy(0, elementTop-(viewPortHeight/2));";
-
-        js.Value.ExecuteScript(scrollElementIntoMiddle, _element);
-    }
-
-    public void ScrollElementIntoView(IWebElement _element)
-    {
         string scrollElementIntoMiddle =
             "var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);"
             + "var elementTop = arguments[0].getBoundingClientRect().top;"
@@ -107,21 +73,11 @@ public class CustomDriver
         js.Value.ExecuteScript($"arguments[0].setAttribute('{attribute}', '{value}')", webElement);
     }
 
-    public void JavaScriptSetAttribute(IWebDriver webElement, string attribute, string value)
-    {
-        js.Value.ExecuteScript($"arguments[0].setAttribute('{attribute}', '{value}')", webElement);
-    }
-
     /// <summary>
     /// Changes text for given element
     /// </summary>
-    /// <param name="webElement"></param>
+    /// <param name="element"></param>
     /// <param name="newText"></param>
-    public void JavaScriptChangeInnerHTML(IWebElement webElement, string newText)
-    {
-        js.Value.ExecuteScript($"arguments[0].innerHTML = '{newText}';", webElement);
-    }
-
     public void JavaScriptChangeInnerHTML(By element, string newText)
     {
         var webElement = driver.FindElement(element);
@@ -160,7 +116,8 @@ public class CustomDriver
             var time = DateTime.Now;
             fileName = "Screenshot_" + time.ToString("h:mm:ss tt zz") + ".png";
         }
-
+        
+        log.Info("Screenshot has been taken");
         return MediaEntityBuilder.CreateScreenCaptureFromBase64String(screenshot, fileName).Build();
     }
 
@@ -176,29 +133,102 @@ public class CustomDriver
         }
     }
 
-    // TODO: add driver methods, but modify them with try catch, logging and other stuff if needed
-    // submit, click
+    public bool ElementIsPresent(By locator)
+    {
+        try
+        {
+            driver.FindElement(locator);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public bool ElementIsInteractable(By locator, int timeout)
+    {
+        try
+        {
+            WebdriverWait(timeout).Until(_ =>
+                driver.FindElement(locator).Enabled && driver.FindElement(locator).Displayed);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public void Get(string url)
+    {
+        driver.Url = url;
+        log.Debug($"Navigated to <a href='{url}'>{url}</a>");
+    }
+
+    public void Click(By locator, int timeout = 10, bool softAssert = true)
+    {
+        if(ElementIsInteractable(locator, timeout))
+            try
+            {
+                driver.FindElement(locator).Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                if (!softAssert)
+                {
+                    log.Error("Element click is intercepted" + JsonReportText(new Dictionary<string, object>{{ "element", locator }}));
+                    Assert.Fail("Element click is intercepted " + locator);
+                }
+                
+                log.Warning("Element click is intercepted" + JsonReportText(new Dictionary<string, object>{{ "element", locator }}));
+                Assert.Warn("Element click is intercepted " + locator);
+            }
+    }
 
     #endregion
 
     #region Assertions
 
+    public void AssertElementIsInteractable(By locator, int timeout, bool softAssert = true)
+    {
+        try
+        {
+            WebdriverWait(timeout).Until(_ =>
+                driver.FindElement(locator).Enabled && driver.FindElement(locator).Displayed);
+            log.Info($"Element <code>{locator}</code> is interactable");
+        }
+        catch (WebDriverTimeoutException)
+        {
+            if (!softAssert)
+            {
+                log.Error($"Element is not interactable after <b>{timeout}</b> seconds)" +
+                          JsonReportText(new Dictionary<string, object>
+                              { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
+                Assert.Fail($"Element is not interactable after <b>{timeout}</b> seconds)");
+            }
+
+            log.Warning($"Element is not interactable after <b>{timeout}</b> seconds)" +
+                        JsonReportText(new Dictionary<string, object>
+                            { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
+        }
+    }
+    
     /// <summary>
     /// Drags and drops element to another element
-    /// TODO: rename to DragAndDrop and add parameter softAssert for assertion
     /// </summary>
     /// <param name="sourceElement"></param>
     /// <param name="targetElement"></param>
-    /// <param name="severity"></param>
-    /// <param name="screenShot"></param>
-    public void DragAndDropAssertion(By sourceElement, By targetElement, Status severity = Status.Warning,
-        bool screenShot = true)
+    /// <param name="softAssert"></param>
+    public void DragAndDrop(By sourceElement, By targetElement, bool softAssert = true)
     {
         var _sourceElement = driver.FindElement(sourceElement);
         var _targetElement = driver.FindElement(targetElement);
-        string fromTo =
-            $"<pre lang='json'><code><font color='red'>from: </font><font color='green'>'{sourceElement}'</font><br/>" +
-            $"<font color='red'>to: </font><font color='green'>'{targetElement}'</font></code></pre>";
+        string fromTo = JsonReportText(new Dictionary<string, object>
+        {
+            { "from", sourceElement },
+            { "to:", targetElement }
+        });
         try
         {
             new Actions(driver)
@@ -208,10 +238,14 @@ public class CustomDriver
         }
         catch
         {
-            if (screenShot)
-                log.BySeverity($"Couldn't Drag and Drop" + fromTo, severity, CaptureScreenshot());
-            else
-                log.BySeverity($"Couldn't Drag and Drop" + fromTo, severity);
+            if (!softAssert)
+            {
+                log.Error("Couldn't Drag and Drop" + fromTo, CaptureScreenshot());
+                Assert.Fail($"Couldn't Drag and Drop from {sourceElement} to {targetElement}");
+            }
+
+            log.Warning("Couldn't Drag and Drop" + fromTo);
+            Assert.Warn($"Couldn't Drag and Drop from {sourceElement} to {targetElement}");
         }
     }
 
@@ -320,7 +354,46 @@ public class CustomDriver
         }
     }
 
-    //TODO: add more
+    public void AssertElementIsPresent(By locator, bool expected, bool softAssert = true)
+    {
+        bool isPresent = ElementIsPresent(locator);
+        string jsonText = JsonReportText(new Dictionary<string, object>
+        {
+            { "element", locator }
+        });
+        if (isPresent && expected)
+        {
+            log.Pass("Element <b>IS</b> present and <b>SHOULD</b> be present" + jsonText);
+            if (!softAssert)
+                Assert.Pass("Element IS present and SHOULD be present");
+        }
+        else if (isPresent && !expected)
+        {
+            if (!softAssert)
+            {
+                log.Error("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText, CaptureScreenshot());
+                Assert.Fail("Element IS present and SHOULD NOT be present");
+            }
+
+            log.Warning("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText);
+        }
+        else if (!isPresent && expected)
+        {
+            if (!softAssert)
+            {
+                log.Error("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText, CaptureScreenshot());
+                Assert.Fail("Element IS NOT present and SHOULD BE present");
+            }
+
+            log.Warning("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText);
+        }
+        else
+        {
+            log.Pass("Element <b>IS NOT</b> present and <b>SHOULD NOT</b> be present");
+            if (!softAssert)
+                Assert.Pass("Element IS NOT present and SHOULD NOT be present");
+        }
+    }
 
     #endregion
 }

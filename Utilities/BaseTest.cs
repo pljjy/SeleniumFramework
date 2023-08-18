@@ -42,7 +42,7 @@ public class BaseTest
     public void OneTimeSetup()
     {
         configs = JsonFileToDictionary(pathToJsonFile);
-        string reportsPath = projectDir + @"/   Reports/";
+        string reportsPath = projectDir + @"/Reports/";
         if (!Directory.Exists(reportsPath))
         {
             Directory.CreateDirectory(reportsPath);

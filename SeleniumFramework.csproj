@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Reports\" />
       <Folder Include="Tests\Api\" />
       <Folder Include="Tests\Site\" />
       <Folder Include="Tests\WebDriver\TestData\" />
