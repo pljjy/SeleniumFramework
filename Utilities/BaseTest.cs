@@ -30,9 +30,10 @@ public class BaseTest
 {
     private protected CustomDriver driver;
     private ExtentReports extent;
-    private protected ReportClass log;
+    private protected Reporter log;
     private protected string nameClass;
     private protected Dictionary<string, dynamic> configs;
+    private protected bool driverTest = true;
 
     public static string projectDir = GetProjectDirectory();
 
@@ -67,7 +68,7 @@ public class BaseTest
     [SetUp]
     public void StartBrowser()
     {
-        log = new ReportClass(TestContext.CurrentContext.Test.Name, extent);
+        log = new Reporter(TestContext.CurrentContext.Test.Name, extent);
         ETypeDriver webEType;
         string browserName = configs["browser"].ToLower();
         switch (browserName)
@@ -121,14 +122,17 @@ public class BaseTest
                 log.Debug("Test skipped");
                 break;
             case TestStatus.Warning:
-                log.Warning("Test ended with a warning", driver.CaptureScreenshot());
+                log.Warning("Test ended with a warning");
                 break;
             case TestStatus.Failed:
-                log.Error("Test ended with an error", driver.CaptureScreenshot());
+                log.Error("Test ended with an error");
                 break;
         }
 
+        if (!driverTest) return;
+        
         driver.Quit();
+        log.Info("Driver quit");
     }
 
     #endregion

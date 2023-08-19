@@ -24,11 +24,6 @@ public class MethodsUtil
         return Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent + "";
     }
 
-    public static string BySelectorToString(By selector)
-    {
-        return selector.ToString()!.Substring(selector.ToString()!.IndexOf(' ') + 1);
-    }
-
     /// <summary>
     /// Json used a lot for reports, if you need to change something about it, change it here
     /// </summary>
@@ -39,7 +34,7 @@ public class MethodsUtil
     public static string JsonReportText(Dictionary<string, object> json, string keyColor = "red",
         string valueColor = "blue")
     {
-        string res = "<br/><pre lang='json'><code>";
+        string res = "<br/><pre lang='json' style='max-height: 500px; overflow-y: scroll; max-width: 1070px;'><code>";
         for (int i = 0; i < json.Count; i++)
         {
             res += $"<font color='{keyColor}'>{json.ElementAt(i).Key}: </font>" +

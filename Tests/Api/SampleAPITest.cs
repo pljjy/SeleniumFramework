@@ -1,31 +1,39 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using RestSharp;
+using SeleniumFramework.Source;
 using SeleniumFramework.Utilities;
+
 // ReSharper disable HeapView.BoxingAllocation
 
 namespace SeleniumFramework.Tests.Api;
 
 public class SampleAPITest : BaseTest
 {
-    [Test]
-    public async Task SampleTestApi()
+    public ApiValidation apiVal;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        var options = new RestClientOptions("https://api.github.com")
-        {
-            MaxTimeout = -1,
-        };
-        var client = new RestClient(options);
-        var request = new RestRequest("/", Method.Get);
-        log.Info("Request sent" + JsonReportText(new Dictionary<string, object>
-        {
-            {"requestUrl", options.BaseUrl + request.Resource},
-            {"requestMethod", request.Method}
-        }));
-        RestResponse response = await client.ExecuteAsync(request);
-        Dictionary<string, string>? json =
-            JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content ??"{'error': 'NO RESPONSE FOUND'}");
+        apiVal = new ApiValidation(log);
+        driverTest = false;
+    }
         
-        Assert.That(json!["user_url"], Is.EqualTo("https://api.github.com/users/{user}"));
+    [Test]
+    public void Test1()
+    {
+        apiVal.ApiAssert("https://library-api.postmanlabs.com/books?genres=fiction",
+            headers: new Dictionary<string, string> { { "api-key", "postmanrulz" } },
+            method: Method.Post,
+            jsonBody: "{\r\n    \"title\":\"Adachi chungus\",\r\n    \"author\":\"me :p\",\r\n    \"genre\":\"amogus gameplay\",\r\n    \"yearPublished\":100\r\n}");
+        // didn't add expected json since it inclueds id and time which are unpredictable
+        // TODO: make a method with partitial respond test and success test as a different test
+    }
+
+    [Test]
+    [Ignore("")]
+    public void Test2()
+    {
+        // apiVal.ApiAssert();
     }
 }

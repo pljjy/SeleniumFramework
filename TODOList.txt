@@ -3,11 +3,10 @@ future:
 - add api assertions
 
 should be doing:
-- api assertions
 - dropdown assertions
 
 in progress:
-- nothing rn
+- api assertions
 
 optional:
 - add docker support

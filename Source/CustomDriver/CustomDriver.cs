@@ -13,16 +13,16 @@ namespace SeleniumFramework.Source.CustomDriver;
 public class CustomDriver
 {
     public readonly IWebDriver driver;
-    public readonly ReportClass log;
+    public readonly Reporter log;
     public readonly Lazy<IJavaScriptExecutor> js;
     // should save some time if there are a lot of tests
 
-    public CustomDriver(IWebDriver driver, ReportClass log)
+    public CustomDriver(IWebDriver driver, Reporter log)
     {
         this.driver = driver;
         this.log = log;
         js = new Lazy<IJavaScriptExecutor>((IJavaScriptExecutor)driver);
-        // #define would go crazy with js.Value 🗣🗣🔥🥶 
+        // cpp #define would go crazy with js.Value 🗣🗣🔥🥶 
     }
 
     #region Utility Methods
@@ -30,11 +30,7 @@ public class CustomDriver
     /// <summary>
     /// shortcut for driver.Quit();
     /// </summary>
-    public void Quit()
-    {
-        driver.Quit();
-        log.Info("Driver quit");
-    }
+    public void Quit() => driver.Quit();
 
     /// <summary>
     /// Returns WebDriverWait with the needed timeout in seconds

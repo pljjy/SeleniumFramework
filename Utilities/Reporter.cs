@@ -5,11 +5,11 @@ namespace SeleniumFramework.Utilities;
 /// <summary>
 /// This class is all the features i use with ExtentTest but with highlighting 
 /// </summary>
-public class ReportClass
+public class Reporter
 {
     public readonly ExtentTest logger;
 
-    public ReportClass(string name, ExtentReports extent)
+    public Reporter(string name, ExtentReports extent)
     {
         logger = extent.CreateTest(name);
     }
