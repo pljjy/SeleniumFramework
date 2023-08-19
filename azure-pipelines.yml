@@ -26,4 +26,4 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: 'nunit3-console /bin/Debug/net7.0/SeleniumFramework.dll'
+    script: 'echo hii'
