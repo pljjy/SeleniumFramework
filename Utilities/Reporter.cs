@@ -9,10 +9,8 @@ public class Reporter
 {
     public readonly ExtentTest logger;
 
-    public Reporter(string name, ExtentReports extent)
-    {
+    public Reporter(string name, ExtentReports extent) =>
         logger = extent.CreateTest(name);
-    }
 
     public void Pass(string text, MediaEntityModelProvider? provider = null)
     {
@@ -50,28 +48,6 @@ public class Reporter
         logger.Log(Status.Fatal, text, provider);
     }
 
-    public void BySeverity(string text, Status severity, MediaEntityModelProvider? provider = null)
-    {
-        switch (severity)
-        {
-            case Status.Pass:
-                Pass(text, provider);
-                break;
-            case Status.Debug:
-                Debug(text, provider);
-                break;
-            case Status.Warning:
-                Warning(text, provider);
-                break;
-            case Status.Error:
-                Error(text, provider);
-                break;
-            case Status.Fatal:
-                Fatal(text, provider);
-                break;
-            default:
-                Info(text, provider);
-                break;
-        }
-    }
+    public void ByStatus(string text, Status status, MediaEntityModelProvider? provider = null) => 
+        logger.Log(status, text, provider);
 }

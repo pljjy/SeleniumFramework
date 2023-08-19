@@ -55,7 +55,7 @@ public class BaseTest
         {
             Config =
             {
-                DocumentTitle = "Epam tests",
+                DocumentTitle = "YourTest",
                 Theme = Theme.Standard
             }
         };
@@ -69,6 +69,8 @@ public class BaseTest
     public void StartBrowser()
     {
         log = new Reporter(TestContext.CurrentContext.Test.Name, extent);
+        if (!driverTest) return;
+        
         ETypeDriver webEType;
         string browserName = configs["browser"].ToLower();
         switch (browserName)
