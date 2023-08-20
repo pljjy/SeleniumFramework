@@ -1,4 +1,4 @@
-﻿namespace SeleniumFramework.Tests.Site;
+﻿namespace SeleniumFramework.Tests.WebDriver.Site;
 
 public class SampleDriverTestLocator
 {

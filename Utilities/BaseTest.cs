@@ -35,8 +35,6 @@ public class BaseTest
     private protected Dictionary<string, dynamic> configs;
     private protected bool driverTest = true;
 
-    public static string projectDir = GetProjectDirectory();
-
     #region SetUp
 
     [OneTimeSetUp]
@@ -85,7 +83,7 @@ public class BaseTest
                 webEType = ETypeDriver.Chrome;
                 break;
         }
-
+        
         IWebDriver _driver = DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
         // json returns Int64 so it should be manually changed to Int32
         driver = new CustomDriver(_driver, log);

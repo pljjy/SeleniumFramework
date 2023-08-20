@@ -6,7 +6,7 @@ should be doing:
 - dropdown assertions
 
 in progress:
-- api assertions
+- nothing
 
 optional:
 - add docker support

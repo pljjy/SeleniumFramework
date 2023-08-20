@@ -1,10 +1,11 @@
 ﻿using NUnit.Framework;
 using SeleniumFramework.Utilities;
-using static SeleniumFramework.Tests.Site.SampleDriverTestLocator;
+using static SeleniumFramework.Tests.WebDriver.Site.SampleDriverTestLocator;
 using static SeleniumFramework.Tests.WebDriver.TestData.SimpleDriverTestTData;
 
 namespace SeleniumFramework.Tests.WebDriver.Test;
 
+[Category("driver")]
 public class SampleDriverTest : BaseTest
 {
     [Test]

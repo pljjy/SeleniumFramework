@@ -7,7 +7,9 @@ namespace SeleniumFramework.Utilities;
 /// </summary>
 public class MethodsUtil
 {
-    public static readonly string pathToJsonFile = GetProjectDirectory() + @"/Utilities/config.json";
+    public static readonly string projectDir =
+        Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent + "";
+    public static readonly string pathToJsonFile = projectDir + @"/Utilities/config.json";
 
     public static int GetNumFromString(string txt)
     {
@@ -17,11 +19,6 @@ public class MethodsUtil
     public static Dictionary<string, dynamic> JsonFileToDictionary(string _path)
     {
         return JObject.Parse(File.ReadAllText(_path)).ToObject<Dictionary<string, dynamic>>()!;
-    }
-
-    public static string GetProjectDirectory()
-    {
-        return Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent + "";
     }
 
     /// <summary>

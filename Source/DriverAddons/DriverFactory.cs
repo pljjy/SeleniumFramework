@@ -10,6 +10,7 @@ namespace SeleniumFramework.Source.DriverAddons;
 public class DriverFactory
 {
     private static bool headless = true;
+    public static readonly string driverPath = Directory.GetCurrentDirectory() + "/chromedriver.exe";
 
     /// <summary>
     /// Returns a chosen webdriver with chosen options and some arguments
@@ -63,7 +64,7 @@ public class DriverFactory
         if (headless) opts.AddArgument("--headless");
         opts.AddArguments("--ignore-ssl-errors=yes",
             "--ignore-certificate-errors", "--window-size=1980,1080");
-        ChromeDriver driver = new ChromeDriver(opts);
+        ChromeDriver driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(driverPath), opts);
         driver.Manage().Window.Maximize();
 
         return driver;
