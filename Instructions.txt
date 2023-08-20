@@ -1,12 +1,3 @@
-rename ./Tests folder to your project name
-./Tests/Site should store methods for tests in ./Tests/Test
-
-if it's possible try to avoid making methods with WebElement, instead use By to match the project style 
-
-these files should have the same name:
-    * test file
-    * corresponding file with methods or/and locators
-    * corresponding test data file
-    
-Utilities/config.json info:
-    * implicit-wait uses seconds
+The reports are in .\bin\Debug\net7.0\Reports
+Use BaseTest for every test fixture
+To log, use ExtentManager.LogStep()

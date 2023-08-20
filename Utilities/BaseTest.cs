@@ -1,8 +1,3 @@
-using AventStack.ExtentReports;
-using AventStack.ExtentReports.Reporter;
-using AventStack.ExtentReports.Reporter.Configuration;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using SeleniumFramework.Source.CustomDriver;
 using SeleniumFramework.Source.DriverAddons;
 
@@ -26,49 +21,29 @@ using SeleniumFramework.Source.DriverAddons;
 
 namespace SeleniumFramework.Utilities;
 
-public class BaseTest
+public abstract class BaseTest
 {
-    private protected CustomDriver driver;
-    private ExtentReports extent;
-    private protected Reporter log;
-    private protected string nameClass;
     private protected Dictionary<string, dynamic> configs;
-    private protected bool driverTest = true;
+    private protected CustomDriver driver;
 
-    #region SetUp
+    private protected bool driverTest = true;
+    // declare driverTest in the child class as a new variable
+    // nUnit uses 1 instance for all tests in testfixutres so constructor doesnt work
+
+    #region SetUps
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
         configs = JsonFileToDictionary(pathToJsonFile);
-        string reportsPath = projectDir + @"/Reports/";
-        if (!Directory.Exists(reportsPath))
-        {
-            Directory.CreateDirectory(reportsPath);
-            // html files are ignored by git so Report folder doesn't exist when cloned 
-        }
-
-        nameClass = GetType().ToString();
-        var htmlReporter = new ExtentHtmlReporter(reportsPath)
-        {
-            Config =
-            {
-                DocumentTitle = "YourTest",
-                Theme = Theme.Standard
-            }
-        };
-
-        extent = new ExtentReports();
-        extent.AttachReporter(htmlReporter);
-        //parse it to html
+        ExtentTestManager.CreateParentTest(GetType().Name);
     }
 
     [SetUp]
     public void StartBrowser()
     {
-        log = new Reporter(TestContext.CurrentContext.Test.Name, extent);
         if (!driverTest) return;
-        
+
         ETypeDriver webEType;
         string browserName = configs["browser"].ToLower();
         switch (browserName)
@@ -83,56 +58,35 @@ public class BaseTest
                 webEType = ETypeDriver.Chrome;
                 break;
         }
-        
+
         IWebDriver _driver = DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
         // json returns Int64 so it should be manually changed to Int32
-        driver = new CustomDriver(_driver, log);
+        ExtentTestManager.CreateTest(TestContext.CurrentContext.Test.Name);
+        driver = new CustomDriver(_driver);
     }
 
     #endregion
 
-    #region TearDown
+    #region TearDowns
 
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
-        extent.Flush();
-        try
-        {
-            File.Move(String.Format(projectDir + @"/Reports/index.html"),
-                String.Format(projectDir + $@"/Reports/{DateTime.Now.ToString("yyyyMMdd_hhmm")}-{nameClass}.html"));
-        }
-        catch (Exception e)
-        {
-            Assert.Fail("Couldn't save reports\n\n" + e.Message + "\n" + e.StackTrace);
-        }
+        ExtentManager.Instance.Flush();
     }
 
     [TearDown]
     public void TearDown()
     {
-        var testStatus = TestContext.CurrentContext.Result.Outcome.Status;
-        Thread.Sleep(500);
-        switch (testStatus)
+        if (!driverTest)
         {
-            case TestStatus.Passed:
-                log.Pass("Test passed successfully");
-                break;
-            case TestStatus.Skipped:
-                log.Debug("Test skipped");
-                break;
-            case TestStatus.Warning:
-                log.Warning("Test ended with a warning");
-                break;
-            case TestStatus.Failed:
-                log.Error("Test ended with an error");
-                break;
+            ExtentManager.FinishReport();
+            return;
         }
 
-        if (!driverTest) return;
-        
+        ExtentManager.FinishReport(driver);
         driver.Quit();
-        log.Info("Driver quit");
+        ExtentManager.LogStep("Driver quit");
     }
 
     #endregion

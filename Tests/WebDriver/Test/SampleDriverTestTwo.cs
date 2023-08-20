@@ -1,11 +1,11 @@
-﻿using SeleniumFramework.Utilities;
+using SeleniumFramework.Utilities;
 using static SeleniumFramework.Tests.WebDriver.Site.SampleDriverTestLocator;
 using static SeleniumFramework.Tests.WebDriver.TestData.SimpleDriverTestTData;
 
 namespace SeleniumFramework.Tests.WebDriver.Test;
 
 [Category("driver")]
-public class SampleDriverTest : BaseTest
+public class SampleDriverTestTwo : BaseTest
 {
     [Test]
     public void SampleDriverTest1()

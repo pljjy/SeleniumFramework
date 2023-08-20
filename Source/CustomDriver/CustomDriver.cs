@@ -1,5 +1,4 @@
 using AventStack.ExtentReports;
-using NUnit.Framework;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumFramework.Utilities;
@@ -7,33 +6,33 @@ using SeleniumFramework.Utilities;
 namespace SeleniumFramework.Source.CustomDriver;
 
 /// <summary>
-/// Use this to make a webdriver
-/// 
+///     Use this to make a webdriver
 /// </summary>
 public class CustomDriver
 {
     public readonly IWebDriver driver;
-    public readonly Reporter log;
+
     public readonly Lazy<IJavaScriptExecutor> js;
     // should save some time if there are a lot of tests
 
-    public CustomDriver(IWebDriver driver, Reporter log)
+    public CustomDriver(IWebDriver driver)
     {
         this.driver = driver;
-        this.log = log;
         js = new Lazy<IJavaScriptExecutor>((IJavaScriptExecutor)driver);
-        // cpp #define would go crazy with js.Value 🗣🗣🔥🥶 
     }
 
     #region Utility Methods
 
     /// <summary>
-    /// shortcut for driver.Quit();
+    ///     shortcut for driver.Quit();
     /// </summary>
-    public void Quit() => driver.Quit();
+    public void Quit()
+    {
+        driver.Quit();
+    }
 
     /// <summary>
-    /// Returns WebDriverWait with the needed timeout in seconds
+    ///     Returns WebDriverWait with the needed timeout in seconds
     /// </summary>
     /// <param name="timeout"> timeout in seconds</param>
     /// <returns></returns>
@@ -43,13 +42,13 @@ public class CustomDriver
     }
 
     /// <summary>
-    /// Scrolls to the given element
+    ///     Scrolls to the given element
     /// </summary>
     /// <param name="locator"></param>
     public void ScrollElementIntoView(By locator)
     {
         var _element = driver.FindElement(locator);
-        string scrollElementIntoMiddle =
+        var scrollElementIntoMiddle =
             "var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);"
             + "var elementTop = arguments[0].getBoundingClientRect().top;"
             + "window.scrollBy(0, elementTop-(viewPortHeight/2));";
@@ -58,7 +57,7 @@ public class CustomDriver
     }
 
     /// <summary>
-    /// Changes attribute for the chosen element
+    ///     Changes attribute for the chosen element
     /// </summary>
     /// <param name="locator"></param>
     /// <param name="attribute"></param>
@@ -70,7 +69,7 @@ public class CustomDriver
     }
 
     /// <summary>
-    /// Changes text for given element
+    ///     Changes text for given element
     /// </summary>
     /// <param name="element"></param>
     /// <param name="newText"></param>
@@ -81,7 +80,7 @@ public class CustomDriver
     }
 
     /// <summary>
-    /// Closes all the windows except the chosen(current by default) one
+    ///     Closes all the windows except the chosen(current by default) one
     /// </summary>
     /// <param name="homePage"></param>
     public void CloseOtherWindows(string? homePage = null)
@@ -89,32 +88,11 @@ public class CustomDriver
         homePage ??= driver.CurrentWindowHandle;
         var windows = driver.WindowHandles;
         foreach (var window in windows)
-        {
             if (window != homePage)
             {
                 driver.SwitchTo().Window(window);
                 driver.Close();
             }
-        }
-    }
-
-    /// <summary>
-    /// Returns screenshot for extent reports
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public MediaEntityModelProvider CaptureScreenshot(string? fileName = null)
-    {
-        ITakesScreenshot ts = (ITakesScreenshot)driver;
-        string screenshot = ts.GetScreenshot().AsBase64EncodedString;
-        if (fileName == null)
-        {
-            var time = DateTime.Now;
-            fileName = "Screenshot_" + time.ToString("h:mm:ss tt zz") + ".png";
-        }
-        
-        log.Info("Screenshot has been taken");
-        return MediaEntityBuilder.CreateScreenCaptureFromBase64String(screenshot, fileName).Build();
     }
 
     private bool IsVisible(By locator)
@@ -159,12 +137,12 @@ public class CustomDriver
     public void Get(string url)
     {
         driver.Url = url;
-        log.Debug($"Navigated to <a href='{url}'>{url}</a>");
+        ExtentManager.LogStep($"Navigated to <a href='{url}'>{url}</a>");
     }
 
     public void Click(By locator, int timeout = 10, bool softAssert = true)
     {
-        if(ElementIsInteractable(locator, timeout))
+        if (ElementIsInteractable(locator, timeout))
             try
             {
                 driver.FindElement(locator).Click();
@@ -173,11 +151,13 @@ public class CustomDriver
             {
                 if (!softAssert)
                 {
-                    log.Error("Element click is intercepted" + JsonReportText(new Dictionary<string, object>{{ "element", locator }}));
+                    ExtentManager.LogStep("Element click is intercepted" + JsonReportText(new Dictionary<string, object>
+                        { { "element", locator } }), Status.Error);
                     Assert.Fail("Element click is intercepted " + locator);
                 }
-                
-                log.Warning("Element click is intercepted" + JsonReportText(new Dictionary<string, object>{{ "element", locator }}));
+
+                ExtentManager.LogStep("Element click is intercepted" +
+                                      JsonReportText(new Dictionary<string, object> { { "element", locator } }));
                 Assert.Warn("Element click is intercepted " + locator);
             }
     }
@@ -185,8 +165,8 @@ public class CustomDriver
     public void Submit(By locator, bool debug = false)
     {
         driver.FindElement(locator).Submit();
-        if(debug)
-            log.Debug("Submitted element " + locator);
+        if (debug)
+            ExtentManager.LogStep("Submitted element " + locator);
     }
 
     #endregion
@@ -199,26 +179,26 @@ public class CustomDriver
         {
             WebdriverWait(timeout).Until(_ =>
                 driver.FindElement(locator).Enabled && driver.FindElement(locator).Displayed);
-            log.Info($"Element <code>{locator}</code> is interactable");
+            ExtentManager.LogStep($"Element <code>{locator}</code> is interactable");
         }
         catch (WebDriverTimeoutException)
         {
             if (!softAssert)
             {
-                log.Error($"Element is not interactable after <b>{timeout}</b> seconds)" +
-                          JsonReportText(new Dictionary<string, object>
-                              { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
+                ExtentManager.LogStep($"Element is not interactable after <b>{timeout}</b> seconds)" +
+                                      JsonReportText(new Dictionary<string, object>
+                                          { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
                 Assert.Fail($"Element is not interactable after <b>{timeout}</b> seconds)");
             }
 
-            log.Warning($"Element is not interactable after <b>{timeout}</b> seconds)" +
-                        JsonReportText(new Dictionary<string, object>
-                            { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
+            ExtentManager.LogStep($"Element is not interactable after <b>{timeout}</b> seconds)" +
+                                  JsonReportText(new Dictionary<string, object>
+                                      { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
         }
     }
-    
+
     /// <summary>
-    /// Drags and drops element to another element
+    ///     Drags and drops element to another element
     /// </summary>
     /// <param name="sourceElement"></param>
     /// <param name="targetElement"></param>
@@ -227,7 +207,7 @@ public class CustomDriver
     {
         var _sourceElement = driver.FindElement(sourceElement);
         var _targetElement = driver.FindElement(targetElement);
-        string fromTo = JsonReportText(new Dictionary<string, object>
+        var fromTo = JsonReportText(new Dictionary<string, object>
         {
             { "from", sourceElement },
             { "to:", targetElement }
@@ -237,24 +217,25 @@ public class CustomDriver
             new Actions(driver)
                 .DragAndDrop(_sourceElement, _targetElement)
                 .Perform();
-            log.Pass($"Successfully Drag and Dropped" + fromTo);
+            ExtentManager.LogStep("Successfully Drag and Dropped" + fromTo, Status.Pass);
         }
         catch
         {
             if (!softAssert)
             {
-                log.Error("Couldn't Drag and Drop" + fromTo, CaptureScreenshot());
+                ExtentManager.LogStep("Couldn't Drag and Drop" + fromTo, Status.Error);
+                TakeScreenShot();
                 Assert.Fail($"Couldn't Drag and Drop from {sourceElement} to {targetElement}");
             }
 
-            log.Warning("Couldn't Drag and Drop" + fromTo);
+            ExtentManager.LogStep("Couldn't Drag and Drop" + fromTo, Status.Warning);
             Assert.Warn($"Couldn't Drag and Drop from {sourceElement} to {targetElement}");
         }
     }
 
     public void SendKeys(By locator, string value, bool softAssert = true, bool clear = true)
     {
-        string reportText = JsonReportText(new Dictionary<string, object>
+        var reportText = JsonReportText(new Dictionary<string, object>
         {
             { "element", locator },
             { "value", value }
@@ -266,66 +247,71 @@ public class CustomDriver
                 input.Clear();
 
             input.SendKeys(value);
-            log.Debug("Text entered to element" + reportText);
+            ExtentManager.LogStep("Text entered to element" + reportText);
         }
         catch (ElementNotInteractableException)
         {
             if (!softAssert)
             {
-                log.Error("Element is not interactable" + reportText, CaptureScreenshot());
+                ExtentManager.LogStep("Element is not interactable" + reportText, Status.Error);
+                TakeScreenShot();
                 Assert.Fail("Couldn't interact with " + locator);
             }
 
-            log.Warning("Element is not interactable" + reportText);
+            ExtentManager.LogStep("Element is not interactable" + reportText, Status.Warning);
             Assert.Warn("Couldn't interact with " + locator);
         }
         catch (StaleElementReferenceException)
         {
             if (!softAssert)
             {
-                log.Error("Element is stale. Unable to send text" + reportText, CaptureScreenshot());
+                ExtentManager.LogStep("Element is stale. Unable to send text" + reportText, Status.Error);
+                TakeScreenShot();
                 Assert.Fail($"Element \"{locator}\" is stale. Unable to send text");
             }
 
-            log.Warning("Element is stale. Unable to send text" + reportText);
+            ExtentManager.LogStep("Element is stale. Unable to send text" + reportText, Status.Warning);
             Assert.Warn($"Element \"{locator}\" is stale. Unable to send text");
         }
         catch (NoSuchElementException)
         {
             if (!softAssert)
             {
-                log.Error("No element found>" + reportText, CaptureScreenshot());
+                ExtentManager.LogStep("No element found>" + reportText, Status.Error);
+                TakeScreenShot();
                 Assert.Fail($"Element \"{locator}\" not found");
             }
 
-            log.Warning("No element found" + reportText);
+            ExtentManager.LogStep("No element found" + reportText, Status.Warning);
             Assert.Warn($"Element \"{locator}\" not found");
         }
         catch (Exception ex)
         {
             if (!softAssert)
             {
-                log.Error($"{ex.Message}</br><b>Stack trace:</b><br/><code><pre lang='red'>" +
-                          $"{ex.StackTrace?.Replace("\n", "<br/></code></pre>")}", CaptureScreenshot());
+                ExtentManager.LogStep($"{ex.Message}</br><b>Stack trace:</b><br/><code><pre lang='red'>" +
+                                      $"{ex.StackTrace?.Replace("\n", "<br/></code></pre>")}",
+                    Status.Error);
+                TakeScreenShot();
                 Assert.Fail(ex.Message);
             }
 
-            log.Warning($"{ex.Message}</br><b>Stack trace:</b><br/><code><pre lang='red'>" +
-                        $"{ex.StackTrace?.Replace("\n", "<br/></code></pre>")}");
+            ExtentManager.LogStep($"{ex.Message}</br><b>Stack trace:</b><br/><code><pre lang='red'>" +
+                                  $"{ex.StackTrace?.Replace("\n", "<br/></code></pre>")}", Status.Warning);
             Assert.Warn(ex.Message);
         }
     }
 
     public void AssertElementIsVisible(By locator, bool expected, bool softAssert = true)
     {
-        bool visible = IsVisible(locator);
-        string jsonText = JsonReportText(new Dictionary<string, object>
+        var visible = IsVisible(locator);
+        var jsonText = JsonReportText(new Dictionary<string, object>
         {
             { "element", locator }
         });
         if (visible && expected)
         {
-            log.Pass("Element <b>IS</b> visible and <b>SHOULD</b> be visible" + jsonText);
+            ExtentManager.LogStep("Element <b>IS</b> visible and <b>SHOULD</b> be visible" + jsonText, Status.Pass);
             if (!softAssert)
                 Assert.Pass("Element IS visible and SHOULD be visible");
         }
@@ -333,25 +319,31 @@ public class CustomDriver
         {
             if (!softAssert)
             {
-                log.Error("Element <b>IS</b> visible and <b>SHOULD NOT</b> be visible" + jsonText, CaptureScreenshot());
+                ExtentManager.LogStep("Element <b>IS</b> visible and <b>SHOULD NOT</b> be visible" + jsonText,
+                    Status.Error);
+                TakeScreenShot();
                 Assert.Fail("Element IS visible and SHOULD NOT be visible");
             }
 
-            log.Warning("Element <b>IS</b> visible and <b>SHOULD NOT</b> be visible" + jsonText);
+            ExtentManager.LogStep("Element <b>IS</b> visible and <b>SHOULD NOT</b> be visible" + jsonText,
+                Status.Warning);
         }
         else if (!visible && expected)
         {
             if (!softAssert)
             {
-                log.Error("Element <b>IS NOT</b> visible and <b>SHOULD</b> be visible" + jsonText, CaptureScreenshot());
+                ExtentManager.LogStep("Element <b>IS NOT</b> visible and <b>SHOULD</b> be visible" + jsonText,
+                    Status.Error);
+                TakeScreenShot();
                 Assert.Fail("Element IS NOT visible and SHOULD BE visible");
             }
 
-            log.Warning("Element <b>IS NOT</b> visible and <b>SHOULD</b> be visible" + jsonText);
+            ExtentManager.LogStep("Element <b>IS NOT</b> visible and <b>SHOULD</b> be visible" + jsonText,
+                Status.Warning);
         }
         else
         {
-            log.Pass("Element <b>IS NOT</b> visible and <b>SHOULD NOT</b> be visible");
+            ExtentManager.LogStep("Element <b>IS NOT</b> visible and <b>SHOULD NOT</b> be visible", Status.Pass);
             if (!softAssert)
                 Assert.Pass("Element IS NOT visible and SHOULD NOT be visible");
         }
@@ -359,14 +351,14 @@ public class CustomDriver
 
     public void AssertElementIsPresent(By locator, bool expected, bool softAssert = true)
     {
-        bool isPresent = ElementIsPresent(locator);
-        string jsonText = JsonReportText(new Dictionary<string, object>
+        var isPresent = ElementIsPresent(locator);
+        var jsonText = JsonReportText(new Dictionary<string, object>
         {
             { "element", locator }
         });
         if (isPresent && expected)
         {
-            log.Pass("Element <b>IS</b> present and <b>SHOULD</b> be present" + jsonText);
+            ExtentManager.LogStep("Element <b>IS</b> present and <b>SHOULD</b> be present" + jsonText, Status.Pass);
             if (!softAssert)
                 Assert.Pass("Element IS present and SHOULD be present");
         }
@@ -374,28 +366,111 @@ public class CustomDriver
         {
             if (!softAssert)
             {
-                log.Error("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText, CaptureScreenshot());
+                ExtentManager.LogStep("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText,
+                    Status.Error);
+                TakeScreenShot();
                 Assert.Fail("Element IS present and SHOULD NOT be present");
             }
 
-            log.Warning("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText);
+            ExtentManager.LogStep("Element <b>IS</b> present and <b>SHOULD NOT</b> be present" + jsonText,
+                Status.Warning);
         }
         else if (!isPresent && expected)
         {
             if (!softAssert)
             {
-                log.Error("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText, CaptureScreenshot());
+                ExtentManager.LogStep("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText,
+                    Status.Error);
+                TakeScreenShot();
                 Assert.Fail("Element IS NOT present and SHOULD BE present");
             }
 
-            log.Warning("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText);
+            ExtentManager.LogStep("Element <b>IS NOT</b> present and <b>SHOULD</b> be present" + jsonText,
+                Status.Warning);
         }
         else
         {
-            log.Pass("Element <b>IS NOT</b> present and <b>SHOULD NOT</b> be present");
+            ExtentManager.LogStep("Element <b>IS NOT</b> present and <b>SHOULD NOT</b> be present", Status.Pass);
             if (!softAssert)
                 Assert.Pass("Element IS NOT present and SHOULD NOT be present");
         }
+    }
+
+    #endregion Assertions
+
+    #region Screenshots
+
+    public void TakeScreenShot(bool fullSize = true)
+    {
+        if (fullSize)
+        {
+            TakeFullPageScreenShot();
+        }
+        else
+        {
+            var extentTest = ExtentTestManager.GetTest();
+
+            var testClassName = TestContext.CurrentContext.Test.ClassName!.Split('.').Last();
+            var screenShotName = testClassName + "-" + TestContext.CurrentContext.Test.Name +
+                                 RandomNum(3) + ".png";
+
+            var screenShot = ((ITakesScreenshot)driver).GetScreenshot();
+            var localPath = ExtentManager.reportFolder + screenShotName;
+            screenShot.SaveAsFile(localPath, ScreenshotImageFormat.Png);
+
+            var relPath = MakeRelative(localPath, ExtentManager.reportFolder);
+            extentTest.Log(Status.Info, $"Screenshot is available at the end of the test, its name is: <br>" +
+                                        $"<pre lang='json'><code>{screenShotName}</code></pre>" +
+                                        extentTest.AddScreenCaptureFromPath(relPath));
+        }
+    }
+
+    public string TakeFullPageScreenShot()
+    {
+        var extentTest = ExtentTestManager.GetTest();
+        var testClassName = TestContext.CurrentContext.Test.ClassName!.Split('.').Last();
+        var screenShotName = testClassName + "-" + TestContext.CurrentContext.Test.Name + RandomNum(3) + ".png";
+
+        var html2canvasJs = File.ReadAllText(projectDir + "/html2canvas.js");
+        js.Value.ExecuteScript(html2canvasJs);
+        var generateScreenshotJS =
+            @"
+                var canvasImgContentDecoded;
+                function genScreenshot () {
+                html2canvas(document.body).then(function(canvas) {
+                window.canvasImgContentDecoded = canvas.toDataURL(""image/png"");
+                console.log(window.canvasImgContentDecoded);
+                });
+                }
+                genScreenshot();";
+
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+        js.Value.ExecuteScript(generateScreenshotJS);
+        var encodedPngContent = new object();
+
+        var getScreenShot = "return window.canvasImgContentDecoded;";
+
+        wait.Until(
+            _ =>
+            {
+                encodedPngContent = js.Value.ExecuteScript(getScreenShot);
+                return encodedPngContent != null;
+            });
+
+
+        var pngContent = encodedPngContent.ToString()!;
+        pngContent = pngContent.Replace("data:image/png;base64,", string.Empty);
+
+        var localPath = ExtentManager.reportFolder + screenShotName;
+
+        var fileSavePath = ExtentManager.reportFolder + screenShotName;
+        File.WriteAllBytes(fileSavePath, Convert.FromBase64String(pngContent));
+        var relPath = MakeRelative(localPath, ExtentManager.reportFolder);
+        extentTest.Log(Status.Info, $"Screenshot is available at the end of the test, its name is: <br>" +
+                                    $"<pre lang='json'><code>{screenShotName}</code></pre>" +
+                                    extentTest.AddScreenCaptureFromPath(relPath));
+        return relPath;
     }
 
     #endregion

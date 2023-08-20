@@ -1,19 +1,20 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
 
 namespace SeleniumFramework.Source.DriverAddons;
 
 /// <summary>
-/// Creates a chosen webdriver with some options
+///     Creates a chosen webdriver with some options
 /// </summary>
 public class DriverFactory
 {
     private static bool headless = true;
-    public static readonly string driverPath = Directory.GetCurrentDirectory() + "/chromedriver.exe";
 
     /// <summary>
-    /// Returns a chosen webdriver with chosen options and some arguments
+    ///     Returns a chosen webdriver with chosen options and some arguments
     /// </summary>
     /// <param name="eTypeDriver">type of the driver</param>
     /// <param name="implWait">implicit wait for the driver in seconds</param>
@@ -37,10 +38,7 @@ public class DriverFactory
                 break;
         }
 
-        if (implWait >= 0)
-        {
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implWait);
-        }
+        if (implWait >= 0) driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implWait);
 
         return driver;
     }
@@ -60,11 +58,12 @@ public class DriverFactory
 
     private static IWebDriver GetChrome()
     {
+        new DriverManager().SetUpDriver(new ChromeConfig());
         var opts = new ChromeOptions();
         if (headless) opts.AddArgument("--headless");
         opts.AddArguments("--ignore-ssl-errors=yes",
             "--ignore-certificate-errors", "--window-size=1980,1080");
-        ChromeDriver driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(driverPath), opts);
+        var driver = new ChromeDriver(opts);
         driver.Manage().Window.Maximize();
 
         return driver;
@@ -72,10 +71,11 @@ public class DriverFactory
 
     private static IWebDriver GetFirefox()
     {
+        new DriverManager().SetUpDriver(new FirefoxConfig());
         var opts = new FirefoxOptions();
         if (headless) opts.AddArgument("--headless");
         opts.AddArgument("--window-size=1980,1080");
-        FirefoxDriver driver = new FirefoxDriver();
+        var driver = new FirefoxDriver();
         driver.Manage().Window.Maximize();
 
         return driver;
@@ -83,12 +83,13 @@ public class DriverFactory
 
     private static IWebDriver GetEdge()
     {
+        new DriverManager().SetUpDriver(new EdgeConfig());
         var opts = new EdgeOptions();
         if (headless) opts.AddArgument("--headless");
         opts.AddArguments("--ignore-ssl-errors=yes",
             "--ignore-certificate-errors", "disable-gpu",
             "--disable-extensions");
-        EdgeDriver driver = new EdgeDriver(opts);
+        var driver = new EdgeDriver(opts);
         driver.Manage().Window.Maximize();
 
         return driver;
