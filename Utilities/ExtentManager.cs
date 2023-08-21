@@ -16,7 +16,7 @@ public class ExtentManager
     {
         if (Directory.Exists(reportFolder) != true) Directory.CreateDirectory(reportFolder);
         var htmlReporter = new ExtentHtmlReporter(reportFolder);
-        // htmlReporter.LoadConfig(binDirectory + @"\extent-config.xml"); //TODO
+        htmlReporter.LoadConfig(projectDir + "/extent-config.xml"); 
         Instance.AttachReporter(htmlReporter);
     }
 
@@ -26,10 +26,10 @@ public class ExtentManager
     {
         var status = TestContext.CurrentContext.Result.Outcome.Status;
         var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
-            ? ""
+            ? string.Empty
             : $"<pre>{TestContext.CurrentContext.Result.StackTrace}</pre>";
         var errorMessage = string.IsNullOrEmpty(TestContext.CurrentContext.Result.Message)
-            ? ""
+            ? string.Empty
             : $"<pre>{TestContext.CurrentContext.Result.Message}</pre>";
         var extentTest = ExtentTestManager.GetTest();
         Status logStatus;
@@ -64,10 +64,10 @@ public class ExtentManager
     {
         var status = TestContext.CurrentContext.Result.Outcome.Status;
         var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
-            ? ""
+            ? String.Empty
             : $"<pre>{TestContext.CurrentContext.Result.StackTrace}</pre>";
         var errorMessage = string.IsNullOrEmpty(TestContext.CurrentContext.Result.Message)
-            ? ""
+            ? String.Empty
             : $"<pre>{TestContext.CurrentContext.Result.Message}</pre>";
         var extentTest = ExtentTestManager.GetTest();
         Status logStatus;
