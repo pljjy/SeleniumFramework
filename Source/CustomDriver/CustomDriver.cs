@@ -47,13 +47,13 @@ public class CustomDriver
     /// <param name="locator"></param>
     public void ScrollElementIntoView(By locator)
     {
-        var _element = driver.FindElement(locator);
+        var element = driver.FindElement(locator);
         var scrollElementIntoMiddle =
             "var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);"
             + "var elementTop = arguments[0].getBoundingClientRect().top;"
             + "window.scrollBy(0, elementTop-(viewPortHeight/2));";
 
-        js.Value.ExecuteScript(scrollElementIntoMiddle, _element);
+        js.Value.ExecuteScript(scrollElementIntoMiddle, element);
     }
 
     /// <summary>
@@ -71,12 +71,12 @@ public class CustomDriver
     /// <summary>
     ///     Changes text for given element
     /// </summary>
-    /// <param name="element"></param>
+    /// <param name="locator"></param>
     /// <param name="newText"></param>
-    public void JavaScriptChangeInnerHTML(By element, string newText)
+    public void JavaScriptChangeInnerHTML(By locator, string newText)
     {
-        var webElement = driver.FindElement(element);
-        js.Value.ExecuteScript($"arguments[0].innerHTML = '{newText}';", webElement);
+        var element = driver.FindElement(locator);
+        js.Value.ExecuteScript($"arguments[0].innerHTML = '{newText}';", element);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public class CustomDriver
             }
     }
 
-    private bool IsVisible(By locator)
+    public bool IsVisible(By locator)
     {
         try
         {
@@ -107,7 +107,7 @@ public class CustomDriver
         }
     }
 
-    public bool ElementIsPresent(By locator)
+    public bool IsPresent(By locator)
     {
         try
         {
@@ -120,7 +120,7 @@ public class CustomDriver
         }
     }
 
-    public bool ElementIsInteractable(By locator, int timeout)
+    public bool IsInteractable(By locator, int timeout)
     {
         try
         {
@@ -142,7 +142,7 @@ public class CustomDriver
 
     public void Click(By locator, int timeout = 10, bool softAssert = true)
     {
-        if (ElementIsInteractable(locator, timeout))
+        if (IsInteractable(locator, timeout))
             try
             {
                 driver.FindElement(locator).Click();
@@ -351,7 +351,7 @@ public class CustomDriver
 
     public void AssertElementIsPresent(By locator, bool expected, bool softAssert = true)
     {
-        var isPresent = ElementIsPresent(locator);
+        var isPresent = IsPresent(locator);
         var jsonText = JsonReportText(new Dictionary<string, object>
         {
             { "element", locator }

@@ -12,7 +12,7 @@ public class MethodsUtil
     public static readonly string projectDir =
         Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent + "";
 
-    public static readonly string pathToJsonFile = projectDir + @"/Utilities/config.json";
+    public static readonly string pathToJsonFile = projectDir + "/Utilities/config.json";
 
     /// <summary>
     ///     Rebases file with path fromPath to folder with baseDir.
