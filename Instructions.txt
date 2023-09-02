@@ -1,3 +1,0 @@
-The reports are in .\bin\Debug\net7.0\Reports
-Use BaseTest for every test fixture
-To log, use ExtentManager.LogStep()
