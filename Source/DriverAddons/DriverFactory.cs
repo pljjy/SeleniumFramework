@@ -9,7 +9,7 @@ namespace SeleniumFramework.Source.DriverAddons;
 /// <summary>
 ///     Creates a chosen webdriver with some options
 /// </summary>
-public class DriverFactory
+public static class DriverFactory
 {
     private static bool headless = true;
 
@@ -41,17 +41,6 @@ public class DriverFactory
         if (implWait >= 0) driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implWait);
 
         return driver;
-    }
-
-    internal static ETypeDriver StringToETypeDriver(string value)
-    {
-        value = value.ToLower();
-        switch (value)
-        {
-            case "edge": return ETypeDriver.Edge;
-            case "firefox": return ETypeDriver.Firefox;
-            default: return ETypeDriver.Chrome;
-        }
     }
 
     #region Private functions

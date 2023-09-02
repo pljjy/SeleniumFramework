@@ -45,8 +45,7 @@ public abstract class BaseTest
         if (!driverTest) return;
 
         ETypeDriver webEType;
-        string browserName = configs["browser"].ToLower();
-        switch (browserName)
+        switch (configs["browser"].ToLower())
         {
             case "edge":
                 webEType = ETypeDriver.Edge;
@@ -60,7 +59,7 @@ public abstract class BaseTest
         }
 
         IWebDriver _driver = DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
-        // json returns Int64 so it should be manually changed to Int32
+        // json returns Int64 so it needs to be manually changed to Int32
         ExtentTestManager.CreateTest(TestContext.CurrentContext.Test.Name);
         driver = new CustomDriver(_driver);
     }

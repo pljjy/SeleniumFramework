@@ -1,12 +1,12 @@
 future:
 - add BDD with SpecFlow
-- add api assertions
 
 should be doing:
 - dropdown assertions
+- add comment documentary to elements 
 
 in progress:
-- nothing
+
 
 optional:
 - add docker support

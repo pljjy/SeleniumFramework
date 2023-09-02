@@ -173,7 +173,7 @@ public class CustomDriver
 
     #region Assertions
 
-    public void AssertElementIsInteractable(By locator, int timeout, bool softAssert = true)
+    public void AssertElementIsInteractable(By locator, int timeout)
     {
         try
         {
@@ -183,22 +183,15 @@ public class CustomDriver
         }
         catch (WebDriverTimeoutException)
         {
-            if (!softAssert)
-            {
-                ExtentManager.LogStep($"Element is not interactable after <b>{timeout}</b> seconds)" +
-                                      JsonReportText(new Dictionary<string, object>
-                                          { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
-                Assert.Fail($"Element is not interactable after <b>{timeout}</b> seconds)");
-            }
-
             ExtentManager.LogStep($"Element is not interactable after <b>{timeout}</b> seconds)" +
                                   JsonReportText(new Dictionary<string, object>
                                       { { "element", locator }, { "timeOutSeconds", timeout + "" } }));
+            Assert.Fail($"Element is not interactable after <b>{timeout}</b> seconds)");
         }
     }
 
     /// <summary>
-    ///     Drags and drops element to another element
+    /// Drags and drops element to another element
     /// </summary>
     /// <param name="sourceElement"></param>
     /// <param name="targetElement"></param>
