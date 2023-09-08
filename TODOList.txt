@@ -1,12 +1,4 @@
-future:
-- add BDD with SpecFlow
-
-should be doing:
+future (maybe):
 - dropdown assertions
-- add comment documentary to elements 
 
 in progress:
-
-
-optional:
-- add docker support

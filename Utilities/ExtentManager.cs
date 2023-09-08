@@ -2,7 +2,7 @@ using AventStack.ExtentReports;
 using AventStack.ExtentReports.MarkupUtils;
 using AventStack.ExtentReports.Reporter;
 using NUnit.Framework.Interfaces;
-using SeleniumFramework.Source.CustomDriver;
+using SeleniumFramework.Source;
 
 namespace SeleniumFramework.Utilities;
 
@@ -16,7 +16,7 @@ public class ExtentManager
     {
         if (Directory.Exists(reportFolder) != true) Directory.CreateDirectory(reportFolder);
         var htmlReporter = new ExtentHtmlReporter(reportFolder);
-        htmlReporter.LoadConfig(projectDir + "/extent-config.xml"); 
+        htmlReporter.LoadConfig(projectDir + "/extent-config.xml");
         Instance.AttachReporter(htmlReporter);
     }
 
@@ -38,7 +38,7 @@ public class ExtentManager
         {
             case TestStatus.Failed:
                 logStatus = Status.Fail;
-                driver.TakeFullPageScreenShot();
+                driver.TakeScreenShot();
                 extentTest.Log(logStatus, "Test error " + errorMessage);
                 break;
             case TestStatus.Inconclusive:
@@ -52,7 +52,7 @@ public class ExtentManager
                 break;
             default:
                 logStatus = Status.Fail;
-                driver.TakeFullPageScreenShot();
+                driver.TakeScreenShot();
                 extentTest.Log(logStatus, "Test error " + errorMessage);
                 break;
         }
@@ -64,10 +64,10 @@ public class ExtentManager
     {
         var status = TestContext.CurrentContext.Result.Outcome.Status;
         var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
-            ? String.Empty
+            ? string.Empty
             : $"<pre>{TestContext.CurrentContext.Result.StackTrace}</pre>";
         var errorMessage = string.IsNullOrEmpty(TestContext.CurrentContext.Result.Message)
-            ? String.Empty
+            ? string.Empty
             : $"<pre>{TestContext.CurrentContext.Result.Message}</pre>";
         var extentTest = ExtentTestManager.GetTest();
         Status logStatus;

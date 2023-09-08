@@ -11,7 +11,7 @@ namespace SeleniumFramework.Tests.Api;
 [Category("api")]
 public class SampleApiTest : BaseTest
 {
-    public new bool driverTest = false;
+    public bool driverTest = false;
 
     [Test]
     public void Test1()

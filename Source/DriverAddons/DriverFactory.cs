@@ -19,8 +19,10 @@ public static class DriverFactory
     /// <param name="eTypeDriver">type of the driver</param>
     /// <param name="implWait">implicit wait for the driver in seconds</param>
     /// <param name="_headless"></param>
+    /// <param name="args">additional options arguments</param>
     /// <returns>webdriver with chosen options</returns>
-    internal static IWebDriver GetBrowser(ETypeDriver eTypeDriver, int implWait = 5, bool _headless = true)
+    internal static IWebDriver GetBrowser(ETypeDriver eTypeDriver, int implWait = 5, bool _headless = true,
+        string[]? args = null)
     {
         headless = _headless;
 
@@ -28,10 +30,10 @@ public static class DriverFactory
         switch (eTypeDriver)
         {
             case ETypeDriver.Firefox:
-                driver = GetFirefox();
+                driver = GetFirefox(args);
                 break;
             case ETypeDriver.Edge:
-                driver = GetEdge();
+                driver = GetEdge(args);
                 break;
             default:
                 driver = GetChrome();
@@ -45,11 +47,13 @@ public static class DriverFactory
 
     #region Private functions
 
-    private static IWebDriver GetChrome()
+    private static IWebDriver GetChrome(string[]? args = null)
     {
         new DriverManager().SetUpDriver(new ChromeConfig());
         var opts = new ChromeOptions();
         if (headless) opts.AddArgument("--headless");
+        if (args is not null) opts.AddArguments(args);
+
         opts.AddArguments("--ignore-ssl-errors=yes",
             "--ignore-certificate-errors", "--window-size=1980,1080");
         var driver = new ChromeDriver(opts);
@@ -58,11 +62,13 @@ public static class DriverFactory
         return driver;
     }
 
-    private static IWebDriver GetFirefox()
+    private static IWebDriver GetFirefox(string[]? args = null)
     {
         new DriverManager().SetUpDriver(new FirefoxConfig());
         var opts = new FirefoxOptions();
         if (headless) opts.AddArgument("--headless");
+        if (args is not null) opts.AddArguments(args);
+
         opts.AddArgument("--window-size=1980,1080");
         var driver = new FirefoxDriver();
         driver.Manage().Window.Maximize();
@@ -70,11 +76,13 @@ public static class DriverFactory
         return driver;
     }
 
-    private static IWebDriver GetEdge()
+    private static IWebDriver GetEdge(string[]? args = null)
     {
         new DriverManager().SetUpDriver(new EdgeConfig());
         var opts = new EdgeOptions();
         if (headless) opts.AddArgument("--headless");
+        if (args is not null) opts.AddArguments(args);
+
         opts.AddArguments("--ignore-ssl-errors=yes",
             "--ignore-certificate-errors", "disable-gpu",
             "--disable-extensions");

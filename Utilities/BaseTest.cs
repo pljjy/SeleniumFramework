@@ -1,4 +1,4 @@
-using SeleniumFramework.Source.CustomDriver;
+using SeleniumFramework.Source;
 using SeleniumFramework.Source.DriverAddons;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -6,14 +6,16 @@ using SeleniumFramework.Source.DriverAddons;
 
 /*
  *===========================================================
+ *
  * This class should be inherited by all classes with tests.
  * It setups the driver, setups ExtentReport variables
  * and flushes it into different files.
- * -----------------------------------------------------
- * Use report variable for logs, use
- * driver.CaptureScreenshot() as second parameter
- * to add a screenshot to the log using AsBase64EncodedString
- * which extent reports use
+ *
+ * ---------------------------------------------------------
+ *
+ * Override driverTest and set it to false if you are doing
+ * api tests or anything else than selenium tests
+ *
  *===========================================================
  */
 
@@ -23,12 +25,9 @@ namespace SeleniumFramework.Utilities;
 
 public abstract class BaseTest
 {
+    private protected bool _driverTest = true;
     private protected Dictionary<string, dynamic> configs;
     private protected CustomDriver driver;
-
-    private protected bool driverTest = true;
-    // declare driverTest in the child class as a new variable
-    // nUnit uses 1 instance for all tests in testfixutres so constructor doesnt work
 
     #region SetUps
 
@@ -42,7 +41,7 @@ public abstract class BaseTest
     [SetUp]
     public void StartBrowser()
     {
-        if (!driverTest) return;
+        if (!_driverTest) return;
 
         ETypeDriver webEType;
         switch (configs["browser"].ToLower())
@@ -77,7 +76,7 @@ public abstract class BaseTest
     [TearDown]
     public void TearDown()
     {
-        if (!driverTest)
+        if (!_driverTest)
         {
             ExtentManager.FinishReport();
             return;

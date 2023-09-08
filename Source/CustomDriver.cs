@@ -1,9 +1,10 @@
+using System.Collections.ObjectModel;
 using AventStack.ExtentReports;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumFramework.Utilities;
 
-namespace SeleniumFramework.Source.CustomDriver;
+namespace SeleniumFramework.Source;
 
 /// <summary>
 ///     Use this to make a webdriver
@@ -23,12 +24,27 @@ public class CustomDriver
 
     #region Utility Methods
 
-    /// <summary>
-    ///     shortcut for driver.Quit();
-    /// </summary>
+    #region IWebDriver methods
+
+    public IWebElement FindElement(By locator)
+    {
+        return driver.FindElement(locator);
+    }
+
+    public ReadOnlyCollection<IWebElement> FindElements(By locator)
+    {
+        return driver.FindElements(locator);
+    }
+
     public void Quit()
     {
         driver.Quit();
+    }
+
+    public void Get(string url)
+    {
+        driver.Url = url;
+        ExtentManager.LogStep($"Navigated to <a href='{url}'>{url}</a>");
     }
 
     /// <summary>
@@ -55,6 +71,9 @@ public class CustomDriver
 
         js.Value.ExecuteScript(scrollElementIntoMiddle, element);
     }
+
+    #endregion
+
 
     /// <summary>
     ///     Changes attribute for the chosen element
@@ -95,6 +114,11 @@ public class CustomDriver
             }
     }
 
+    /// <summary>
+    ///     Returns true if element is visible
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <returns></returns>
     public bool IsVisible(By locator)
     {
         try
@@ -107,6 +131,11 @@ public class CustomDriver
         }
     }
 
+    /// <summary>
+    ///     Returns true if element is on the page
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <returns></returns>
     public bool IsPresent(By locator)
     {
         try
@@ -120,6 +149,12 @@ public class CustomDriver
         }
     }
 
+    /// <summary>
+    ///     Returns true driver can interact with the given element
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="timeout"></param>
+    /// <returns></returns>
     public bool IsInteractable(By locator, int timeout)
     {
         try
@@ -134,34 +169,11 @@ public class CustomDriver
         }
     }
 
-    public void Get(string url)
-    {
-        driver.Url = url;
-        ExtentManager.LogStep($"Navigated to <a href='{url}'>{url}</a>");
-    }
-
-    public void Click(By locator, int timeout = 10, bool softAssert = true)
-    {
-        if (IsInteractable(locator, timeout))
-            try
-            {
-                driver.FindElement(locator).Click();
-            }
-            catch (ElementClickInterceptedException)
-            {
-                if (!softAssert)
-                {
-                    ExtentManager.LogStep("Element click is intercepted" + JsonReportText(new Dictionary<string, object>
-                        { { "element", locator } }), Status.Error);
-                    Assert.Fail("Element click is intercepted " + locator);
-                }
-
-                ExtentManager.LogStep("Element click is intercepted" +
-                                      JsonReportText(new Dictionary<string, object> { { "element", locator } }));
-                Assert.Warn("Element click is intercepted " + locator);
-            }
-    }
-
+    /// <summary>
+    ///     Submits the chosen element
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="debug"></param>
     public void Submit(By locator, bool debug = false)
     {
         driver.FindElement(locator).Submit();
@@ -173,6 +185,38 @@ public class CustomDriver
 
     #region Assertions
 
+    /// <summary>
+    ///     Clicks on an element, otherwise warns or fails the test
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="timeout"></param>
+    /// <param name="softAssert">if true, warns instead of failing the test in case there is a problem</param>
+    public void Click(By locator, int timeout = 10, bool softAssert = true)
+    {
+        try
+        {
+            driver.FindElement(locator).Click();
+        }
+        catch (ElementClickInterceptedException)
+        {
+            if (!softAssert)
+            {
+                ExtentManager.LogStep("Element click is intercepted" + JsonReportText(new Dictionary<string, object>
+                    { { "element", locator } }), Status.Error);
+                Assert.Fail("Element click is intercepted " + locator);
+            }
+
+            ExtentManager.LogStep("Element click is intercepted" +
+                                  JsonReportText(new Dictionary<string, object> { { "element", locator } }));
+            Assert.Warn("Element click is intercepted " + locator);
+        }
+    }
+
+    /// <summary>
+    ///     Asserts if the element is interactable or not
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="timeout"></param>
     public void AssertElementIsInteractable(By locator, int timeout)
     {
         try
@@ -191,11 +235,11 @@ public class CustomDriver
     }
 
     /// <summary>
-    /// Drags and drops element to another element
+    ///     Drags and drops element to another element
     /// </summary>
     /// <param name="sourceElement"></param>
     /// <param name="targetElement"></param>
-    /// <param name="softAssert"></param>
+    /// <param name="softAssert">if true, warns instead of failing the test in case there is a problem</param>
     public void DragAndDrop(By sourceElement, By targetElement, bool softAssert = true)
     {
         var _sourceElement = driver.FindElement(sourceElement);
@@ -210,7 +254,7 @@ public class CustomDriver
             new Actions(driver)
                 .DragAndDrop(_sourceElement, _targetElement)
                 .Perform();
-            ExtentManager.LogStep("Successfully Drag and Dropped" + fromTo, Status.Pass);
+            ExtentManager.LogStep("Successfully drag and dropped" + fromTo, Status.Pass);
         }
         catch
         {
@@ -226,7 +270,14 @@ public class CustomDriver
         }
     }
 
-    public void SendKeys(By locator, string value, bool softAssert = true, bool clear = true)
+    /// <summary>
+    ///     Sends string to the element
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="value"></param>
+    /// <param name="softAssert">if true, warns instead of failing the test in case there is a problem</param>
+    /// <param name="clear">clears the element value</param>
+    public void SendKeys(By locator, string value, bool clear = true, bool softAssert = true)
     {
         var reportText = JsonReportText(new Dictionary<string, object>
         {
@@ -295,6 +346,12 @@ public class CustomDriver
         }
     }
 
+    /// <summary>
+    ///     Asserts if the element is visible
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="expected"></param>
+    /// <param name="softAssert">if true, warns instead of failing the test in case there is a problem</param>
     public void AssertElementIsVisible(By locator, bool expected, bool softAssert = true)
     {
         var visible = IsVisible(locator);
@@ -342,6 +399,12 @@ public class CustomDriver
         }
     }
 
+    /// <summary>
+    ///     Asserts if the element is present
+    /// </summary>
+    /// <param name="locator"></param>
+    /// <param name="expected"></param>
+    /// <param name="softAssert">if true, warns instead of failing the test in case there is a problem</param>
     public void AssertElementIsPresent(By locator, bool expected, bool softAssert = true)
     {
         var isPresent = IsPresent(locator);
@@ -393,6 +456,10 @@ public class CustomDriver
 
     #region Screenshots
 
+    /// <summary>
+    ///     Takes screenshot of the screen and adds it to the report
+    /// </summary>
+    /// <param name="fullSize">uses TakeFullPageScreenshotInstead</param>
     public void TakeScreenShot(bool fullSize = true)
     {
         if (fullSize)
@@ -418,7 +485,11 @@ public class CustomDriver
         }
     }
 
-    public string TakeFullPageScreenShot()
+    /// <summary>
+    ///     Takes screenshot of the whole page
+    /// </summary>
+    /// <returns></returns>
+    private string TakeFullPageScreenShot()
     {
         var extentTest = ExtentTestManager.GetTest();
         var testClassName = TestContext.CurrentContext.Test.ClassName!.Split('.').Last();

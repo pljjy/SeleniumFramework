@@ -8,7 +8,7 @@ namespace SeleniumFramework.Source;
 public static class ApiValidation
 {
     /// <summary>
-    ///     aompares response content to an expected one
+    ///     Compares response content to an expected one
     /// </summary>
     /// <param name="requestUrl"></param>
     /// <param name="expectedJson"></param>
@@ -42,7 +42,7 @@ public static class ApiValidation
     }
 
     /// <summary>
-    ///     asserts if response status is the same as expected
+    ///     Asserts if response status is the same as expected
     /// </summary>
     /// <param name="requestUrl"></param>
     /// <param name="method"></param>
@@ -79,7 +79,7 @@ public static class ApiValidation
     }
 
     /// <summary>
-    ///     checks if response contains an expected string
+    ///     Checks if response contains an expected string
     /// </summary>
     /// <param name="requestUrl"></param>
     /// <param name="method"></param>
@@ -113,8 +113,8 @@ public static class ApiValidation
     }
 
     /// <summary>
-    ///     makes an api request with provided info, returns the response
-    ///     should be by other methods
+    ///     Makes an api request with provided info, returns the response
+    ///     should be used by other methods
     /// </summary>
     /// <param name="requestUrl"></param>
     /// <param name="method"></param>
@@ -155,6 +155,12 @@ public static class ApiValidation
         return response;
     }
 
+    /// <summary>
+    ///     Checks if json strings are equal, excluding tabs, line breaks and all of that
+    /// </summary>
+    /// <param name="json1"></param>
+    /// <param name="json2"></param>
+    /// <returns></returns>
     public static bool EqualJsons(string json1, string json2)
     {
         return JToken.DeepEquals(JToken.Parse(json1), JToken.Parse(json2));

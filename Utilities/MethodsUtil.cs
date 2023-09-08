@@ -15,11 +15,11 @@ public class MethodsUtil
     public static readonly string pathToJsonFile = projectDir + "/Utilities/config.json";
 
     /// <summary>
-    ///     Rebases file with path fromPath to folder with baseDir.
     /// </summary>
-    /// <param name="_fromPath">Full file path (absolute)</param>
-    /// <param name="_baseDir">Full base directory path (absolute)</param>
-    /// <returns>Relative path to file in respect of baseDir</returns>
+    /// <param name="_filePath">Full file path (absolute)</param>
+    /// <param name="_rootPath">Full base directory path (absolute)</param>
+    /// <returns></returns>
+    /// /// &lt;param name="_fromPath"&gt;&lt;/param&gt;
     public static string MakeRelative(string _filePath, string _rootPath)
     {
         var filePath = new Uri(_filePath, UriKind.Absolute);
@@ -30,7 +30,7 @@ public class MethodsUtil
     }
 
     /// <summary>
-    ///     returns string with length numbers, each number is random
+    ///     Returns string with length numbers, each number is random
     /// </summary>
     /// <param name="length"></param>
     /// <returns></returns>
@@ -40,18 +40,28 @@ public class MethodsUtil
         return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
     }
 
+    /// <summary>
+    ///     Removes all non number characters from string and returns what's left as an integer
+    /// </summary>
+    /// <param name="txt"></param>
+    /// <returns></returns>
     public static int GetNumFromString(string txt)
     {
         return int.Parse(new string(txt.Where(char.IsDigit).ToArray()));
     }
 
+    /// <summary>
+    ///     Converts a .json file to a Dictionary
+    /// </summary>
+    /// <param name="_path"></param>
+    /// <returns></returns>
     public static Dictionary<string, dynamic> JsonFileToDictionary(string _path)
     {
         return JObject.Parse(File.ReadAllText(_path)).ToObject<Dictionary<string, dynamic>>()!;
     }
 
     /// <summary>
-    ///     json used a lot for reports, if you need to change something about it, change it here
+    ///     Used by most methods with logging, adds a json to your report
     /// </summary>
     /// <param name="json"></param>
     /// <param name="keyColor"></param>
