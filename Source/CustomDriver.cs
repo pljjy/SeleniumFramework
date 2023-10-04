@@ -7,7 +7,7 @@ using SeleniumFramework.Utilities;
 namespace SeleniumFramework.Source;
 
 /// <summary>
-///     Use this to make a webdriver
+///  Use this to make a webdriver
 /// </summary>
 public class CustomDriver
 {
@@ -502,7 +502,7 @@ public class CustomDriver
                 var canvasImgContentDecoded;
                 function genScreenshot () {
                 html2canvas(document.body).then(function(canvas) {
-                window.canvasImgContentDecoded = canvas.toDataURL(""image/png"");
+                window.canvasImgContentDecoded = canvas.toDataURL('image/png');
                 console.log(window.canvasImgContentDecoded);
                 });
                 }
@@ -513,12 +513,12 @@ public class CustomDriver
         js.Value.ExecuteScript(generateScreenshotJS);
         var encodedPngContent = new object();
 
-        var getScreenShot = "return window.canvasImgContentDecoded;";
+        var getScreenshot = "return window.canvasImgContentDecoded;";
 
         wait.Until(
             _ =>
             {
-                encodedPngContent = js.Value.ExecuteScript(getScreenShot);
+                encodedPngContent = js.Value.ExecuteScript(getScreenshot);
                 return encodedPngContent != null;
             });
 

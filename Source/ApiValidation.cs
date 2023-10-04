@@ -5,6 +5,10 @@ using SeleniumFramework.Utilities;
 
 namespace SeleniumFramework.Source;
 
+/// <summary>
+/// You may wanna use just the GetResponse since it just gets the desired response
+/// But some of the other methods may fit your needs so I'll just keep them here
+/// </summary>
 public static class ApiValidation
 {
     /// <summary>

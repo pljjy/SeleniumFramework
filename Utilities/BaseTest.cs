@@ -1,6 +1,8 @@
 using SeleniumFramework.Source;
 using SeleniumFramework.Source.DriverAddons;
 
+using static SeleniumFramework.Source.TestParameters;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 
@@ -13,8 +15,8 @@ using SeleniumFramework.Source.DriverAddons;
  *
  * ---------------------------------------------------------
  *
- * Override driverTest and set it to false if you are doing
- * api tests or anything else than selenium tests
+ * Override _driverTest and set it to false if you are doing
+ * api or any other test that isn't a webdriver
  *
  *===========================================================
  */
@@ -26,7 +28,6 @@ namespace SeleniumFramework.Utilities;
 public abstract class BaseTest
 {
     private protected bool _driverTest = true;
-    private protected Dictionary<string, dynamic> configs;
     private protected CustomDriver driver;
 
     #region SetUps
@@ -34,7 +35,6 @@ public abstract class BaseTest
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-        configs = JsonFileToDictionary(pathToJsonFile);
         ExtentTestManager.CreateParentTest(GetType().Name);
     }
 
@@ -42,9 +42,10 @@ public abstract class BaseTest
     public void StartBrowser()
     {
         if (!_driverTest) return;
-
+        
+        // COMMENT THIS
         ETypeDriver webEType;
-        switch (configs["browser"].ToLower())
+        switch (browser)
         {
             case "edge":
                 webEType = ETypeDriver.Edge;
@@ -57,7 +58,7 @@ public abstract class BaseTest
                 break;
         }
 
-        IWebDriver _driver = DriverFactory.GetBrowser(webEType, (int)configs["implicit-wait"], configs["headless"]);
+        IWebDriver _driver = DriverFactory.GetBrowser(webEType, implicitWait, headless);
         // json returns Int64 so it needs to be manually changed to Int32
         ExtentTestManager.CreateTest(TestContext.CurrentContext.Test.Name);
         driver = new CustomDriver(_driver);

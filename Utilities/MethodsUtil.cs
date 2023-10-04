@@ -5,7 +5,7 @@ namespace SeleniumFramework.Utilities;
 /// <summary>
 ///     These are some methods that are frequently used throughout the code
 /// </summary>
-public class MethodsUtil
+public static class MethodsUtil
 {
     private static readonly Random random = new();
 
@@ -19,7 +19,6 @@ public class MethodsUtil
     /// <param name="_filePath">Full file path (absolute)</param>
     /// <param name="_rootPath">Full base directory path (absolute)</param>
     /// <returns></returns>
-    /// /// &lt;param name="_fromPath"&gt;&lt;/param&gt;
     public static string MakeRelative(string _filePath, string _rootPath)
     {
         var filePath = new Uri(_filePath, UriKind.Absolute);

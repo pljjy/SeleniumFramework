@@ -13,6 +13,7 @@ public class SampleDriverTest : BaseTest
         driver.Get(url);
         driver.SendKeys(searchInput, search, false);
         driver.Submit(searchInput);
+        driver.TakeScreenShot();
         driver.AssertElementIsPresent(By.XPath("//*[contains(text(), 'kitten')]"), true, false);
     }
 }

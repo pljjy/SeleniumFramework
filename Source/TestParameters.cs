@@ -5,5 +5,8 @@
 /// </summary>
 public static class TestParameters
 {
-    // public static readonly string? example = TestContext.Parameters["bleeeh :p"];
+    // USE THIS UNLESS DEBUGGING
+    public static readonly string browser = TestContext.Parameters["browser"] ?? "chrome";
+    public static readonly bool headless = bool.Parse(TestContext.Parameters["headless"] ?? "true");
+    public static readonly int implicitWait = int.Parse(TestContext.Parameters["implicit-wait"] ?? "15");
 }
